@@ -1,0 +1,79 @@
+---
+- name: Create an Azure VM
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: yes
+  become_user: root
+  vars:
+    resource_group: "CSIWZG628T-Dissertation"
+    location: "East US"
+    vm_name: "USEAPP56789090"
+    vm_size: "Standard_B2s"
+    admin_username: "unixops"
+    admin_password: "Password@123"
+    image_resource_group: "CSIWZG628T-Dissertation"
+    image_name: "USWAPP27518-image-20240908125029"
+    vnet_name: "CSIWZG628T-Vnet"
+    vnet_address_prefix: "10.0.0.0/16"
+    subnet_name: "Subnet-A"
+    subnet_address_prefix: "10.0.0.0/24"
+    image_type: "managed_image"  # Set to "managed_image" for managed images
+#    ansible_python_interpreter: /bin/python3
+#    ANSIBLE_LIBRARY: /root/.ansible/collections/ansible_collections
+    # gallery_name: ""  # Use if image_type is "shared_gallery"
+    # image_definition: ""  # Use if image_type is "shared_gallery"
+    # image_version: ""  # Use if image_type is "shared_gallery"
+
+  tasks:
+#    - name: Create a virtual network
+#      azure.azcollection.azure_rm_virtualnetwork:
+#        resource_group: "{{ resource_group }}"
+#        name: "{{ vnet_name }}"
+#        address_prefixes: "{{ vnet_address_prefix }}"
+
+#    - name: Create a subnet
+#      azure.azcollection.azure_rm_subnet:
+#        resource_group: "{{ resource_group }}"
+#        name: "{{ subnet_name }}"
+#        address_prefixes: "{{ subnet_address_prefix }}"
+#        virtual_network_name: "{{ vnet_name }}"
+
+    - name: Create a network interface
+      azure.azcollection.azure_rm_networkinterface:
+        resource_group: "{{ resource_group }}"
+        name: "ansible-nic"
+        subnet_name: "{{ subnet_name }}"
+        virtual_network_name: "{{ vnet_name }}"
+
+    # Uncomment if you need a public IP address
+    # - name: Create a public IP address
+    #   azure.azcollection.azure_rm_publicipaddress:
+    #     resource_group: "{{ resource_group }}"
+    #     name: "ansible-pub-ip"
+    #     allocation_method: "Dynamic"
+
+    - name: Create the virtual machine
+      azure.azcollection.azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name }}"
+        vm_size: "{{ vm_size }}"
+        admin_username: "{{ admin_username }}"
+        admin_password: "{{ admin_password }}"
+        network_interfaces: "ansible-nic"
+#        os_disk_caching: "ReadWrite"
+#        os_disk_size_gb: 30
+#        os_disk_type: "Standard_LRS"
+        location: "{{ location }}"
+        image:
+          offer: 0001-com-ubuntu-server-jammy
+          publisher: Canonical
+          sku: 22_04-lts
+          version: latest
+
+    - name: Ensure the VM is running
+      azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name }}"
+        state: "present"
+

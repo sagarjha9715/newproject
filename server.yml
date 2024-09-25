@@ -14,7 +14,7 @@
     admin_password: "Password@123"
     image_resource_group: "CSIWZG628T-Dissertation"
     image_name: "USWAPP27518-image-20240908125029"
-    vnet_name: "CSIWZG628T-Vnet"
+    vnet_name: "Vnet-DEV"
     vnet_address_prefix: "10.0.0.0/16"
     subnet_name: "Subnet-A"
     subnet_address_prefix: "10.0.0.0/24"
